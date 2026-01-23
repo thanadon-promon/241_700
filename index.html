@@ -4,11 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <!---1.ส่วนนี้จะไม่เเสดงผลที่หน้าเว็ป-->
 </head>
-<body style="background-color: rgb(156, 84, 98);">
-    <!---2.ส่วนนี้จะเเสดงผลที่หน้าเว็ป-->
-    <a href="https://www.google.com" target="_blank">visit Google</a>
+<body>
+    <input type="radio" name="gender" value="male" onchange="ChangeGender()"> Male
+    <input type="radio" name="gender" value="female" onchange="ChangeGender()"> Female
+    <script>
+        function ChangeGender() {
+            let gender = document.querySelectorAll('input[name="gender"]');
+
+            for (let i = 0; i < gender.length; i++) {
+                if (gender[i].checked) {
+                    console.log("Gender selected: " + gender[i].value);
+                }
+            }
+        }
+    </script>
 </body>
-</html>
 </html>

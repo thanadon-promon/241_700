@@ -1,0 +1,171 @@
+/* นำเข้าฟอนต์ภาษาไทยสวยๆ จาก Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap');
+
+/* ตั้งค่าพื้นฐาน */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Prompt', sans-serif; /* ใช้ฟอนต์ Prompt */
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); /* พื้นหลังไล่สีนุ่มๆ */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* กล่อง Container (Card Style) */
+.container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 500px; /* ความกว้างสูงสุด */
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* เงาฟุ้งๆ */
+}
+
+/* ส่วนหัวข้อ */
+.header {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* จัดการ Layout ของฟอร์ม */
+.form-input {
+    margin-bottom: 20px;
+    color: #555;
+    font-size: 16px;
+}
+
+/* คลาส flex สำหรับจัดเรียงแนวนอน */
+.flex {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* ให้ตกบรรทัดได้ถ้าจอเล็ก */
+}
+
+/* ป้ายกำกับหน้าช่องกรอก (ชื่อ, นามสกุล, ฯลฯ) */
+.header-form {
+    width: 100px; /* ความกว้างคงที่เพื่อให้ช่องตรงกัน */
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+/* ช่องกรอกข้อมูล (Input Text & Number) */
+.form {
+    flex-grow: 1; /* ขยายให้เต็มพื้นที่ที่เหลือ */
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    outline: none;
+    background-color: #f9f9f9;
+}
+
+/* เอฟเฟกต์ตอนคลิกที่ช่องกรอก */
+.form:focus, textarea:focus {
+    border-color: #667eea;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ส่วนของเพศ (Radio Buttons) */
+.gender .flex div {
+    margin-right: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+input[type="radio"], input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #667eea; /* เปลี่ยนสีปุ่มเลือกให้เข้ากับธีม */
+    cursor: pointer;
+    transform: scale(1.1);
+}
+
+/* ส่วนงานอดิเรก (Checkboxes) */
+.form-input > div {
+    margin-top: 10px;
+    margin-left: 15px;
+    display: flex;
+    align-items: center;
+}
+
+/* พื้นที่กรอกคำอธิบาย (Textarea) */
+textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    resize: vertical; /* ให้ยืดหดได้แค่แนวตั้ง */
+    min-height: 100px;
+    font-family: 'Prompt', sans-serif;
+    background-color: #f9f9f9;
+    outline: none;
+    transition: 0.3s;
+}
+
+/* ปุ่มส่งข้อมูล */
+.center {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.button {
+    background: linear-gradient(to right, #667eea, #764ba2); /* ปุ่มไล่สี */
+    color: white;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button:hover {
+    transform: translateY(-2px); /* ลอยขึ้นเล็กน้อยตอนเอาเมาส์ชี้ */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.button:active {
+    transform: translateY(0);
+}
+
+/* การแสดงผลบนมือถือ (Responsive) */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+    }
+    
+    .flex {
+        display: block; /* เปลี่ยนเป็นแนวตั้ง */
+    }
+
+    .header-form {
+        width: 100%;
+        margin-bottom: 8px; /* เว้นระยะห่างระหว่างป้ายกับช่องกรอก */
+    }
+
+    .form {
+        width: 100%;
+    }
+    
+    .gender .flex {
+        display: flex; /* ส่วนเพศให้เรียงแนวนอนเหมือนเดิม */
+        margin-top: 5px;
+    }
+}

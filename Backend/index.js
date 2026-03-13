@@ -1,8 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2/promise')
 const app = express();
 const cors = require('cors');
+
 app.use(cors());
 
 app.use(bodyParser.json());
@@ -10,7 +11,7 @@ app.use(bodyParser.json());
 const port = 8000;
 
 let conn = null;
-const initMysql = async () => {
+const initMySQL = async () => {
     conn = await mysql.createConnection({
         host: 'localhost',
         user: 'root',
@@ -21,99 +22,109 @@ const initMysql = async () => {
     console.log('Connected to MySQL database');
 }
 
-app.get('/users', async (req, res) => {
-    try {
-        const result = await conn.query('SELECT * FROM users');
-        res.json(result[0]);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+ app.get('/users', async (req, res) => {
+    const results = await conn.query('SELECT * FROM users');
+    res.json(results[0]);
+})
 
-app.post('/users', async (req, res) => {
+const validateData = (userData) => {
+    let errors = [];
+    if (!userData.firstName) {
+        errors.push('กรุณากรอกชื่อ');
+    }
+    if (!userData.lastName) {
+        errors.push('กรุณากรอกนามสกุล');
+    }
+    if (!userData.age) {
+        errors.push('กรุณากรอกอายุ');
+    }
+    if (!userData.gender) {
+        errors.push('กรุณาเลือกเพศ');
+    }
+    if (!userData.interests) {
+        errors.push('กรุณาเลือกงานอดิเรก');
+    }
+    if (!userData.description) {
+        errors.push('กรุณากรอกคำอธิบาย');
+    }
+    return errors;
+}
+
+
+ app.post('/users', async (req, res) => {
     try {
         let user = req.body;
-        const result = await conn.query('INSERT INTO users SET ?', user);
+        const errors = validateData(user);
+        if (errors.length > 0) {
+            throw {
+                message: 'กรุณากรอกข้อมูลให้ครบถ้วน',
+                errors: errors
+            }
+        }
+        const results = await conn.query('INSERT INTO users SET ?', user);
+        console.log('results:', results);
         res.json({
-            Message: 'Users added successfully',
-            data: result[0]
+            message: 'User added successfully',
+            data: results[0]
         });
     } catch (error) {
-        console.error('Error inserting users:', error);
-        res.status(500).json({ message: 'Error adding users' });
+        const errorMessage = error.message || 'Error adding user';
+        const errors = error.errors || [];
+        console.error('Error inserting user:', error);
+        res.status(500).json({ 
+            message: errorMessage,
+            errors: errors
+        });
     }
-});
+})
 
-app.get('/users/:id', async (req, res) => {
+ app.get('/users/:id', async (req, res) => {
     try {
         let id = req.params.id;
-        const result = await conn.query('SELECT * FROM users WHERE id = ?', id);
-        if (result[0].length === 0) {
-            throw { statusCode: 404, message: 'Users not found' };
+        const results = await conn.query('SELECT * FROM users WHERE id = ?', id);
+        if (results[0].length === 0) {
+            throw { statusCode: 404, message: 'User not found' };
         }
-        res.json(result[0][0]);
+        res.json(results[0][0]);
     } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching user:', error);
         let statusCode = error.statusCode || 500;
         res.status(statusCode).json({
-            message: error.message || 'Error fetching users'
+            message: error.message || 'Error fetching user'
         });
     }
-});
+})
 
-app.put('/users/:id', async (req, res) => {
+ app.put('/users/:id', async (req, res) => {
     try {
         let id = req.params.id;
-        let updatedUser = req.body;
-        const result = await conn.query('UPDATE users SET ? WHERE id = ?', [updatedUser, id]);
+        let updateUser = req.body;
+        const results = await conn.query('UPDATE users SET ? WHERE id = ?', [updateUser, id]);
         res.json({
-            Message: 'User updated successfully',
-            data: result[0]
+            message: 'User updated successfully',
+            data: results[0]
         });
     } catch (error) {
         console.error('Error updating user:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: 'Error updating user' });
     }
-});
+})
 
-app.get('/testdb2', async (req, res) => {
+ app.delete('/users/:id', async (req, res) => {
     try {
-        const result = await conn.query('SELECT * FROM users');
-        res.json(result[0]);
+        let id = req.params.id;
+        const results = await conn.query('DELETE FROM users WHERE id = ?', id);
+        res.json({  
+            message: 'User deleted successfully',
+            data: results[0]
+        });
     } catch (error) {
-        console.error('Error connecting to the database:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Error deleting user' });
     }
-});
-
-app.patch('/users/:id', async (req, res) => {
-    try {
-        let id = req.params.id;
-        let updatedUser = req.body;
-        const result = await conn.query('UPDATE users SET ? WHERE id = ?', [updatedUser, id]);
-        res.json({
-            Message: 'User updated successfully',
-            data: result[0]
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.delete('/users/:id', async (req, res) => {
-    try {
-        let id = req.params.id;
-        const result = await conn.query('DELETE FROM users WHERE id = ?', [id]);
-        res.json({
-            Message: 'User deleted successfully',
-            data: result[0]
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+})
 
 app.listen(port, async () => {
-    await initMysql();
+    await initMySQL();
     console.log(`Server is running on http://localhost:${port}`);
 });

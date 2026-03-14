@@ -1,9 +1,60 @@
+const BASE_URL = 'http://localhost:8000';
+
+let mode = 'create'; // เพิ่มข้อมูลใหม่
+let selectedId = '';
+
+window.onload = async () => {
+    const uriParams = new URLSearchParams(window.location.search);
+    const id = uriParams.get('id');
+    console.log('id', id);
+    if (id) {
+        mode = 'edit'; // แก้ไขข้อมูล
+        selectedId = id;
+
+        //1. ดึงข้อมูลของ user เก่าออกมาแสดง
+        try {
+            const response = await axios.get(`${BASE_URL}/users/${id}`);
+            //console.log('response', response.data);
+            const user = response.data;
+
+            //2. จะนำข้อมูล user ที่ได้มาแสดงในฟอร์มเพื่อให้สามารถแก้ไขได้
+            let firstNameDOM = document.querySelector('input[name="firstname"]');
+            let lastNameDOM = document.querySelector('input[name="lastname"]');
+            let ageDOM = document.querySelector('input[name="age"]');
+            let descriptionDOM = document.querySelector('textarea[name="description"]');
+            
+            firstNameDOM.value = user.firstname;
+            lastNameDOM.value = user.lastname;
+            ageDOM.value = user.age;
+            descriptionDOM.value = user.description;
+
+            let genderDOM = document.querySelector('input[name="gender"]:checked') || {};
+            let interestDOMs = document.querySelectorAll('input[name="interests"]:checked') || {};
+            
+            for (let i = 0; i < genderDOM.length; i++) {
+                if (genderDOM[i].value === user.gender) {
+                    genderDOM[i].checked = true;
+                }
+            }
+
+            for (let i = 0; i < interestDOMs.length; i++) {
+                if (user.interests.includes(interestDOMs[i].value)) {
+                    interestDOMs[i].checked = true;
+                }
+            }
+
+        } catch (error) {
+            console.error('Error', error);
+        }
+    }
+}
+
 const validateData = (userData) => {
     let errors = [];
-    if (!userData.firstName) {
+    if (!userData.firstname) {
         errors.push('กรุณากรอกชื่อ');
     }
-    if (!userData.lastName) {
+    if (!userData.lastname) {
         errors.push('กรุณากรอกนามสกุล');
     }
     if (!userData.age) {
@@ -22,28 +73,28 @@ const validateData = (userData) => {
 }
 
 const submitData = async () => {
-    let firstNameDOM = document.querySelector('input[name=firstname]');
-    let lastNameDOM = document.querySelector('input[name=lastname]');
-    let ageDOM = document.querySelector('input[name=age]');
-    let genderDOM = document.querySelector('input[name=gender]:checked') || {};
-    let interestDOMs = document.querySelectorAll('input[name=interests]:checked') || {};
-    let descriptionDOM = document.querySelector('textarea[name=description]');
+    let firstNameDOM = document.querySelector('input[name="firstname"]');
+    let lastNameDOM = document.querySelector('input[name="lastname"]');
+    let ageDOM = document.querySelector('input[name="age"]');
+    let genderDOM = document.querySelector('input[name="gender"]:checked') || {};
+    let interestDOMs = document.querySelectorAll('input[name="interests"]:checked') || {};
+    let descriptionDOM = document.querySelector('textarea[name="description"]');
+    let messageDOM = document.getElementById('message');
 
-    let messageDOM = document.getElementById('message')
     try {
-        let interest = ''
+        let interest = '';
         for (let i = 0; i < interestDOMs.length; i++) {
-            interest += interestDOMs[i].value
-            if (i != interestDOMs.length - 1) {
-                interest += ','
+            interest += interestDOMs[i].value;
+            if (i !== interestDOMs.length - 1) {
+                interest += ', ';
             }
         }
 
         let userData = {
-            firstName: firstNameDOM.value,
-            lastName: lastNameDOM.value,
+            firstname: firstNameDOM.value,
+            lastname: lastNameDOM.value,
             age: ageDOM.value,
-            gender: genderDOM.value,
+            gender: genderDOM.value || '',
             description: descriptionDOM.value,
             interests: interest
         }
@@ -56,14 +107,23 @@ const submitData = async () => {
                 errors: errors
             }
         }
+        let message = 'บันทึกข้อมูลสำเร็จ';
 
-        const response = await axios.post('http://localhost:8000/users', userData);
-        console.log('response', response);
-        messageDOM.innerText = 'บันทึกข้อมูลสำเร็จ';
+        if (mode === 'create') {
+            const response = await axios.post(`${BASE_URL}/users`, userData);
+            console.log('response', response.data);
+        } else {
+            const response = await axios.put(`${BASE_URL}/users/${selectedId}`, userData);
+            message = 'แก้ไขข้อมูลสำเร็จ';
+            console.log('response', response.data);
+        } 
+
+        messageDOM.innerText = message;
         messageDOM.className = 'message success';
+
     } catch (error) {
-        console.log('error message', error.message);
-        console.log('error', error.errors);
+        console.log('Errer message:', error.message);
+        console.log('Error details:', error.errors);
 
         if (error.response) {
             console.log('Error response:', error.response);
@@ -72,13 +132,13 @@ const submitData = async () => {
         }
 
         let htmlData = '<div>'
-        htmlData += `<div>${error.message}</div>`;
-        htmlData += '<ul>';
+        htmlData += '<div>' + error.message + '</div>';
+        htmlData += '<ui>';
         for (let i = 0; i < error.errors.length; i++) {
-            htmlData += `<li>${error.errors[i]}</li>`;
+            htmlData += '<div>' + error.errors[i] + '</div>';
         }
-        htmlData += '</ul>';
-        htmlData += '</div>';
+        htmlData += '</ui>';
+        htmlData += '<div>';
 
 
         messageDOM.innerHTML = htmlData;

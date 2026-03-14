@@ -12,7 +12,7 @@ const loadData = async () => {
         let user = response.data[i];
         htmlData += ` <div>
         ${user.id} ${user.firstname} ${user.lastname}
-        <button>Edit</button>
+        <a href="index.html?id=${user.id}"><button>Edit</button></a>
         <button class='delete' data-id='${user.id}'>Delete</button>
         </div>`
     }
@@ -25,7 +25,6 @@ const loadData = async () => {
             const id = event.target.dataset.id;
             try{
                 await axios.delete(`${BASE_URL}/users/${id}`);
-                //http://localhost:8000/users/4
                 loadData();  
             }catch(error){
                 console.error("Error deleting user:", error);
